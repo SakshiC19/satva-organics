@@ -1,0 +1,135 @@
+.promotional-banners {
+    padding: var(--spacing-16) 0;
+    background: var(--bg-primary);
+}
+
+.banners-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-8);
+}
+
+.promo-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-10);
+    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
+    transition: transform var(--transition-base);
+}
+
+.promo-banner:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.banner-1 {
+    background-color: #f9f9f9;
+    border: 1px solid var(--color-gray-100);
+}
+
+.banner-2 {
+    background-color: #f0fdf4;
+    border: 1px solid var(--color-primary-100);
+}
+
+.banner-content {
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.banner-subtitle {
+    font-family: 'Yellowtail', cursive;
+    color: var(--color-primary-600);
+    font-size: 1.5rem;
+    display: block;
+}
+
+.banner-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.1;
+    font-family: var(--font-family-heading);
+}
+
+.banner-title span {
+    font-weight: 300;
+    display: block;
+}
+
+.banner-offer {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-error);
+    margin-bottom: var(--spacing-4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: white;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    align-self: flex-start;
+}
+
+.banner-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-bottom: 2px solid var(--color-primary-600);
+    padding-bottom: 2px;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+    margin-top: var(--spacing-2);
+}
+
+.banner-btn:hover {
+    color: var(--color-primary-600);
+}
+
+.banner-image {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.banner-image img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-height: 220px;
+    transition: transform var(--transition-slow);
+}
+
+.promo-banner:hover .banner-image img {
+    transform: scale(1.05) rotate(2deg);
+}
+
+@media (max-width: 768px) {
+    .banners-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .promo-banner {
+        min-height: auto;
+        padding: var(--spacing-6);
+    }
+
+    .banner-title {
+        font-size: 2rem;
+    }
+}
