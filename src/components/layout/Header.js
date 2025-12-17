@@ -22,7 +22,7 @@ const Header = () => {
   const [expandedCategories, setExpandedCategories] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const { currentUser, logout, isAdmin, userRole } = useAuth();
-  const { cartCount } = useCart();
+  const { cartCount, openCart } = useCart();
   const navigate = useNavigate();
 
   // Debug logging
@@ -160,6 +160,11 @@ const Header = () => {
                     <Link to="/account/wishlist" className="dropdown-item">
                       My Wishlist
                     </Link>
+                    {isAdmin && (
+                      <Link to="/admin/dashboard" className="dropdown-item">
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <button onClick={handleLogout} className="dropdown-item logout">
                       Logout
                     </button>
@@ -187,10 +192,18 @@ const Header = () => {
             </Link>
 
             {/* Cart */}
-            <Link to="/cart" className="action-item cart-item">
+            {/* Cart */}
+            <button 
+              className="action-item cart-item" 
+              onClick={(e) => {
+                e.preventDefault();
+                openCart();
+              }}
+              style={{ background: 'none', border: 'none', padding: 0 }}
+            >
               <FiShoppingCart />
               <span className="cart-count">{cartCount}</span>
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -236,27 +249,24 @@ const Header = () => {
         </div>
         
         <div className="mobile-sidebar-content">
+          {/* Mobile Search */}
+          <form onSubmit={handleSearch} className="mobile-search-form">
+            <div className="mobile-search-wrapper">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="mobile-search-input"
+              />
+              <button type="submit" className="mobile-search-btn">
+                <FiSearch />
+              </button>
+            </div>
+          </form>
           {/* Auth Section in Sidebar */}
           <div className="mobile-auth-section">
-            {currentUser ? (
-              <div className="mobile-user-info">
-                <div className="user-greeting">
-                  <FiUser />
-                  <span>Hello, {currentUser.displayName || 'User'}</span>
-                </div>
-                <div className="mobile-user-links">
-                  <Link to="/account/profile" onClick={() => setMobileMenuOpen(false)}>My Profile</Link>
-                  <Link to="/account/orders" onClick={() => setMobileMenuOpen(false)}>My Orders</Link>
-                  <Link to="/account/wishlist" onClick={() => setMobileMenuOpen(false)}>My Wishlist</Link>
-                  {isAdmin && (
-                    <Link to="/admin/dashboard" onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</Link>
-                  )}
-                  <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="mobile-logout-btn">
-                    Logout
-                  </button>
-                </div>
-              </div>
-            ) : (
+            {!currentUser && (
               <div className="mobile-auth-buttons">
                 <Link to="/login" className="mobile-auth-btn login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
                 <Link to="/signup" className="mobile-auth-btn signup" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
@@ -305,6 +315,14 @@ const Header = () => {
               </div>
             ))}
           </div>
+          
+          {currentUser && (
+            <div className="mobile-sidebar-footer">
+              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="mobile-logout-btn">
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { FiHeart, FiShoppingCart, FiMinus, FiPlus, FiCheck } from 'react-icons/fi';
-import { MdCompareArrows } from 'react-icons/md';
+import { FiHeart, FiMinus, FiPlus, FiCheck } from 'react-icons/fi';
+import { useCart } from '../../contexts/CartContext';
 import './ProductDetail.css';
+
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -53,14 +54,25 @@ const ProductDetail = () => {
     }
   };
 
+  const { addToCart, openCart } = useCart();
+
+  // ... (existing code)
+
   const handleAddToCart = () => {
-    console.log('Adding to cart:', {
-      product,
-      brand: selectedBrand,
-      size: selectedSize,
+    if (!product) return;
+    
+    addToCart({
+      ...product,
+      selectedBrand,
+      selectedSize,
       quantity
     });
-    // TODO: Implement cart functionality
+    openCart();
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    navigate('/checkout');
   };
 
   if (loading) {
@@ -234,15 +246,19 @@ const ProductDetail = () => {
               >
                 Add to cart
               </button>
+              <button 
+                className="btn-buy-now"
+                onClick={handleBuyNow}
+                disabled={product.stock <= 0}
+              >
+                Buy Now
+              </button>
             </div>
 
             {/* Wishlist & Compare */}
             <div className="secondary-actions">
               <button className="secondary-btn">
                 <FiHeart /> ADD TO WISHLIST
-              </button>
-              <button className="secondary-btn">
-                <MdCompareArrows /> COMPARE
               </button>
             </div>
 
@@ -331,8 +347,29 @@ const ProductDetail = () => {
             {activeTab === 'reviews' && (
               <div className="tab-pane">
                 <h3>Customer Reviews</h3>
-                <p>No reviews yet. Be the first to review this product!</p>
-                {/* TODO: Add review form and list */}
+                {/* Review Form */}
+                <div className="review-form-container">
+                  <h4>Write a Review</h4>
+                  <form className="review-form" onSubmit={(e) => e.preventDefault()}>
+                    <div className="form-group">
+                      <label>Your Rating</label>
+                      <div className="rating-input">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} className="star-input">★</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>Your Review</label>
+                      <textarea placeholder="Write your review here..." rows="4"></textarea>
+                    </div>
+                    <button type="submit" className="btn-submit-review">Submit Review</button>
+                  </form>
+                </div>
+                
+                <div className="reviews-list">
+                  <p>No reviews yet. Be the first to review this product!</p>
+                </div>
               </div>
             )}
           </div>

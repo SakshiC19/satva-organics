@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
-import { FiShoppingCart, FiHeart, FiEye, FiShoppingBag } from 'react-icons/fi';
-import Badge from '../common/Badge';
-import ProductQuickView from './ProductQuickView';
+import { FiHeart, FiShoppingCart, FiShoppingBag } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 
 const ProductCard = ({ 
   product 
 }) => {
-  const [showQuickView, setShowQuickView] = useState(false);
   const navigate = useNavigate();
   const { addToCart } = useCart();
   
@@ -35,11 +32,7 @@ const ProductCard = ({
   // Determine stock status - Firebase uses numeric stock, legacy uses boolean inStock
   const isInStock = stock !== undefined ? stock > 0 : inStock;
 
-  const handleQuickView = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowQuickView(true);
-  };
+
 
   const handleProductClick = () => {
     if (id) {
@@ -48,104 +41,77 @@ const ProductCard = ({
   };
 
   return (
-    <div className="product-card">
+    <div className="product-card" onClick={handleProductClick}>
       {/* Product Image */}
-      <div className="product-card-image" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
-        {/* Product Type Badge */}
-        {product.productType && (
-          <Badge 
-            variant={product.productType === 'organic' ? 'organic' : 'inorganic'} 
-            size="sm"
-            className="product-type-badge"
-          >
-            {product.productType === 'organic' ? 'Organic' : 'Inorganic'}
-          </Badge>
-        )}
-        
-        {/* Featured or Discount Badge */}
-        {product.featured && !discount && (
-          <Badge variant="featured" size="sm" className="product-featured-badge">
-            Featured
-          </Badge>
-        )}
-        {discount && (
-          <Badge variant="success" className="product-discount-badge">
-            -{discount}%
-          </Badge>
-        )}
-        
-        <img src={productImage} alt={name} />
-        
-        {/* Quick Actions */}
-        <div className="product-quick-actions">
-          <button className="quick-action-btn" aria-label="Add to wishlist">
-            <FiHeart />
-          </button>
-          <button className="quick-action-btn" aria-label="Quick view" onClick={handleQuickView}>
-            <FiEye />
-          </button>
-          <button className="quick-action-btn primary" aria-label="Add to cart">
-            <FiShoppingCart />
-          </button>
+      <div className="product-card-image">
+        <div className="wishlist-icon-container">
+           <button className="wishlist-btn" onClick={(e) => { e.stopPropagation(); /* Add to wishlist logic */ }}>
+             <FiHeart className="heart-icon" />
+           </button>
         </div>
+        <img src={productImage} alt={name} />
       </div>
 
       {/* Product Info */}
       <div className="product-card-info">
-        <span className="product-category">{category}</span>
-        <h3 className="product-name" onClick={handleProductClick} style={{ cursor: 'pointer' }}>{name}</h3>
+        <h3 className="product-name">{name}</h3>
+        <span className="product-variant">{category}</span> {/* Using category as variant/color placeholder */}
         
-        {/* Rating */}
-        <div className="product-rating">
-          {[...Array(5)].map((_, index) => (
-            <span key={index} className={index < rating ? 'star filled' : 'star'}>
-              ★
-            </span>
-          ))}
+        {/* Rating & Organic Label */}
+        <div className="rating-row">
+          <div className="product-rating-badge">
+            {rating} <span className="star">★</span>
+          </div>
+          <span className="review-count">({Math.floor(Math.random() * 1000) + 50})</span> {/* Placeholder count */}
+          <div className="organic-assured-badge">
+             <img src="https://cdn-icons-png.flaticon.com/512/2917/2917995.png" alt="shield" className="shield-icon" style={{width: '14px', height: '14px', marginRight: '4px'}} />
+             <span>Organic</span>
+          </div>
         </div>
 
         {/* Price */}
         <div className="product-price">
           <span className="current-price">₹{price}</span>
           {originalPrice && (
-            <span className="original-price">₹{originalPrice}</span>
+            <>
+              <span className="original-price">₹{originalPrice}</span>
+              <span className="discount-text">{discount}% off</span>
+            </>
           )}
         </div>
 
-        {/* Stock Status */}
-        {!isInStock && <span className="out-of-stock">Out of Stock</span>}
+        {/* Stock Status / Few Left */}
+        {isInStock ? (
+          stock < 10 && stock > 0 ? (
+            <span className="few-left-text">Only few left</span>
+          ) : null
+        ) : (
+          <span className="out-of-stock">Out of Stock</span>
+        )}
 
         {/* Action Buttons */}
-        <div className="product-card-bottom-actions">
+        <div className="product-card-actions">
           <button 
-            className="card-action-btn cart-btn"
+            className="card-btn add-cart-btn"
             onClick={(e) => {
               e.stopPropagation();
               addToCart(product);
             }}
           >
-            <FiShoppingCart /> Add to Cart
+            Add to Cart
           </button>
           <button 
-            className="card-action-btn buy-btn"
+            className="card-btn buy-now-btn"
             onClick={(e) => {
               e.stopPropagation();
               addToCart(product);
-              navigate('/cart');
+              navigate('/checkout');
             }}
           >
-            <FiShoppingBag /> Buy Now
+            Buy Now
           </button>
         </div>
       </div>
-
-      {/* Quick View Modal */}
-      {showQuickView && (
-        <ProductQuickView 
-          product={product} 
-          onClose={() => setShowQuickView(false)} 
-        />
-      )}
     </div>
   );
 };

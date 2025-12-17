@@ -54,6 +54,12 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
+  const toggleCart = () => setIsCartOpen(prev => !prev);
+
   const clearCart = () => {
     setCartItems([]);
   };
@@ -66,7 +72,11 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     updateQuantity,
     clearCart,
-    cartCount
+    cartCount,
+    isCartOpen,
+    openCart,
+    closeCart,
+    toggleCart
   };
 
   return (

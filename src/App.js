@@ -23,8 +23,11 @@ import AddProduct from './pages/Admin/AddProduct';
 import EditProduct from './pages/Admin/EditProduct';
 import AdminOrders from './pages/Admin/Orders';
 import HeroBanners from './pages/Admin/HeroBanners';
+import Users from './pages/Admin/Users';
 import MakeAdmin from './components/admin/MakeAdmin';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
+import Checkout from './pages/Checkout/Checkout';
+import CartDrawer from './components/cart/CartDrawer';
 import { CategoryProvider } from './contexts/CategoryContext';
 import './styles/index.css';
 
@@ -48,6 +51,7 @@ function App() {
         <CartProvider>
           <Router>
           <div className="app">
+            <CartDrawer />
             <Routes>
               {/* Public Routes with Layout */}
               <Route path="/" element={<Layout><Home /></Layout>} />
@@ -59,6 +63,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/make-admin" element={<MakeAdmin />} />
+              <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
               
               {/* Protected User Dashboard Routes */}
               <Route path="/account" element={
@@ -89,6 +94,7 @@ function App() {
                 <Route path="products/edit/:id" element={<EditProduct />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="banners" element={<HeroBanners />} />
+                <Route path="users" element={<Users />} />
               </Route>
 
               {/* Fallback for other routes */}
