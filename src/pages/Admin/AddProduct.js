@@ -23,8 +23,9 @@ const AddProduct = () => {
     stock: '',
     unit: 'kg',
     packingSizes: '',
-    organic: true,
-    featured: false
+    productType: 'organic',
+    featured: false,
+    codAvailable: false
   });
 
   const { categories: contextCategories, loading: categoriesLoading } = useCategories();
@@ -83,8 +84,10 @@ const AddProduct = () => {
         stock: parseInt(formData.stock) || 0,
         unit: formData.unit,
         packingSizes: formData.packingSizes ? formData.packingSizes.split(',').map(s => s.trim()) : [],
-        organic: formData.organic,
+        productType: formData.productType,
+        organic: formData.productType === 'organic', // Keep for backward compatibility
         featured: formData.featured,
+        codAvailable: formData.codAvailable,
         images: uploadedImages.map(img => ({
           url: img.url,
           path: img.path
@@ -244,17 +247,33 @@ const AddProduct = () => {
               />
             </div>
 
-            <div className="form-checkboxes">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="organic"
-                  checked={formData.organic}
-                  onChange={handleInputChange}
-                />
-                <span>Organic Product</span>
-              </label>
+            <div className="form-group">
+              <label>Product Type *</label>
+              <div className="form-radio-group">
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="productType"
+                    value="organic"
+                    checked={formData.productType === 'organic'}
+                    onChange={handleInputChange}
+                  />
+                  <span>Organic Product</span>
+                </label>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="productType"
+                    value="inorganic"
+                    checked={formData.productType === 'inorganic'}
+                    onChange={handleInputChange}
+                  />
+                  <span>Inorganic Product</span>
+                </label>
+              </div>
+            </div>
 
+            <div className="form-checkboxes">
               <label className="checkbox-label">
                 <input
                   type="checkbox"
@@ -263,6 +282,16 @@ const AddProduct = () => {
                   onChange={handleInputChange}
                 />
                 <span>Featured Product</span>
+              </label>
+
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="codAvailable"
+                  checked={formData.codAvailable}
+                  onChange={handleInputChange}
+                />
+                <span>Cash on Delivery Available</span>
               </label>
             </div>
           </div>

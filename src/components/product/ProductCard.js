@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
-import { FiShoppingCart, FiHeart, FiEye } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiEye, FiShoppingBag } from 'react-icons/fi';
 import Badge from '../common/Badge';
 import ProductQuickView from './ProductQuickView';
+import { useCart } from '../../contexts/CartContext';
 
 const ProductCard = ({ 
   product 
 }) => {
   const [showQuickView, setShowQuickView] = useState(false);
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   
   const { 
+    id,
     name, 
     image, 
     images, // Firebase format
@@ -32,18 +37,43 @@ const ProductCard = ({
 
   const handleQuickView = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setShowQuickView(true);
+  };
+
+  const handleProductClick = () => {
+    if (id) {
+      navigate(`/product/${id}`);
+    }
   };
 
   return (
     <div className="product-card">
       {/* Product Image */}
-      <div className="product-card-image">
+      <div className="product-card-image" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
+        {/* Product Type Badge */}
+        {product.productType && (
+          <Badge 
+            variant={product.productType === 'organic' ? 'organic' : 'inorganic'} 
+            size="sm"
+            className="product-type-badge"
+          >
+            {product.productType === 'organic' ? 'Organic' : 'Inorganic'}
+          </Badge>
+        )}
+        
+        {/* Featured or Discount Badge */}
+        {product.featured && !discount && (
+          <Badge variant="featured" size="sm" className="product-featured-badge">
+            Featured
+          </Badge>
+        )}
         {discount && (
           <Badge variant="success" className="product-discount-badge">
             -{discount}%
           </Badge>
         )}
+        
         <img src={productImage} alt={name} />
         
         {/* Quick Actions */}
@@ -63,7 +93,7 @@ const ProductCard = ({
       {/* Product Info */}
       <div className="product-card-info">
         <span className="product-category">{category}</span>
-        <h3 className="product-name">{name}</h3>
+        <h3 className="product-name" onClick={handleProductClick} style={{ cursor: 'pointer' }}>{name}</h3>
         
         {/* Rating */}
         <div className="product-rating">
@@ -84,6 +114,29 @@ const ProductCard = ({
 
         {/* Stock Status */}
         {!isInStock && <span className="out-of-stock">Out of Stock</span>}
+
+        {/* Action Buttons */}
+        <div className="product-card-bottom-actions">
+          <button 
+            className="card-action-btn cart-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+            }}
+          >
+            <FiShoppingCart /> Add to Cart
+          </button>
+          <button 
+            className="card-action-btn buy-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+              navigate('/cart');
+            }}
+          >
+            <FiShoppingBag /> Buy Now
+          </button>
+        </div>
       </div>
 
       {/* Quick View Modal */}

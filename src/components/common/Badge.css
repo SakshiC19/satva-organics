@@ -75,3 +75,32 @@
     align-items: center;
     font-size: 1em;
 }
+
+/* Badge for Inorganic Products */
+.badge-inorganic {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #7dd3fc;
+}
+
+/* Badge for Featured Products */
+.badge-featured {
+    background-color: #fef3c7;
+    color: #92400e;
+    font-weight: var(--font-weight-bold);
+}
+
+/* Product Card Badge Positioning */
+.product-type-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+}
+
+.product-featured-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+}

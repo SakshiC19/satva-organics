@@ -166,7 +166,15 @@ const ProductQuickView = ({ product, onClose }) => {
             <div className="quick-view-meta">
               <div className="meta-item">
                 <span className="meta-label">Type:</span>
-                <span className="meta-value">Organic</span>
+                <span className="meta-value">
+                  {product.productType === 'organic' ? 'Organic' : product.productType === 'inorganic' ? 'Inorganic' : 'Organic'}
+                </span>
+              </div>
+              <div className="meta-item">
+                <span className="meta-label">COD:</span>
+                <span className="meta-value">
+                  {product.codAvailable ? 'Available' : 'Not Available'}
+                </span>
               </div>
               {product.mfgDate && (
                 <div className="meta-item">

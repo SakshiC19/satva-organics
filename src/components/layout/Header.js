@@ -1,242 +1,312 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   FiShoppingCart, 
   FiUser, 
   FiSearch,
   FiChevronDown,
-  FiX,
-  FiHeart
+  FiPackage,
+  FiHeart,
+  FiMenu,
+  FiX
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCategories } from '../../contexts/CategoryContext';
+
+import { useCart } from '../../contexts/CartContext';
 import './Header.css';
 import logo from '../../assets/logo.png';
 
 const Header = () => {
   const [activeMenu, setActiveMenu] = useState(null);
-  const [activeCategory, setActiveCategory] = useState(null);
-  const [showAllCategories, setShowAllCategories] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const { currentUser, logout, isAdmin } = useAuth();
-  const { categories } = useCategories();
+  const { currentUser, logout, isAdmin, userRole } = useAuth();
+  const { cartCount } = useCart();
+  const navigate = useNavigate();
 
-
+  // Debug logging
+  console.log('Header - currentUser:', currentUser?.email);
+  console.log('Header - userRole:', userRole);
+  console.log('Header - isAdmin:', isAdmin);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log('Searching for:', searchQuery);
-    setSearchOpen(false);
-    setSearchQuery('');
+    if (searchQuery.trim()) {
+      console.log('Searching for:', searchQuery);
+      // Navigate to shop with search query
+      navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery('');
+    }
   };
 
   const handleLogout = async () => {
     try {
       await logout();
+      navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
 
+  const toggleCategory = (index) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  // Static categories for the secondary nav
+  const navItems = [
+    { 
+      name: 'Organic Exotic Products', 
+      path: '/shop?category=organic-exotic-products',
+      subcategories: [
+        'Broccoli', 'Cherry Tomato', 'Red Cabbage', 'Yello Zucchini', 'Lettuce Leaf', 
+        'Beshal', 'Jalapena Green Chilli', 'Bok Choy', 'organic Spinch', 'organic Roman', 'Rocket'
+      ]
+    },
+    { 
+      name: 'Organic Woodcold Press Oils', 
+      path: '/shop?category=woodcold-press-oils',
+      subcategories: ['Coconut Oil', 'groundnuts Oil', 'Sunflower Oil', 'Safflower Oil']
+    },
+    { 
+      name: 'Millets Of India', 
+      path: '/shop?category=millets-of-india',
+      subcategories: ['Sorghum (Jawar)', 'Pearl Millet(Bajra)', 'Finger Millet( Ragi)']
+    },
+    { 
+      name: 'Organic Items', 
+      path: '/shop?category=organic-items',
+      subcategories: ['Fresh Turmeric', 'organic Jaggary', 'Organic Jaggary cubes']
+    },
+    { 
+      name: 'Seeds And Nuts', 
+      path: '/shop?category=seeds-and-nuts',
+      subcategories: ['pumpkin seed', 'sunflower seed', 'sesame seed', 'Solapuri peanuts', 'Chia Seeds', 'Mustard Seeds']
+    },
+    { 
+      name: 'Organic Powder', 
+      path: '/shop?category=organic-powder',
+      subcategories: ['Moringa Leaf Powder', 'Neem Powder', 'Amla Powder', 'Shatavari Powder', 'Triphala Powder', 'Turmeric Latte Mix', 'organic Jaggary powder']
+    },
+  ];
+
   return (
     <header className="header">
-      {/* Main Header */}
+      {/* Top Header (Logo, Search, Actions) */}
       <div className="header-main">
-        <div className="container">
-          <div className="header-main-content">
-            {/* Logo */}
-            <Link to="/" className="header-logo">
-              <img src={logo} alt="Satva Organics" className="logo-image" />
-            </Link>
+        <div className="container header-container">
+          {/* Logo */}
+          <Link to="/" className="header-logo">
+            <img src={logo} alt="Satva Organics" className="logo-image" />
+          </Link>
 
-            {/* Navigation */}
-            <nav className="header-nav-inline">
-              <ul className="nav-menu">
-                <li className="nav-item">
-                  <Link to="/" className="nav-link">Home</Link>
-                </li>
+          {/* Mobile Menu Button */}
+          <button 
+            className="mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <FiMenu />
+          </button>
 
-              {/* Category with Nested Categories */}
-                <li 
-                  className={`nav-item has-dropdown ${activeMenu === 'shop' ? 'active' : ''}`}
-                  onMouseEnter={() => setActiveMenu('shop')}
-                  onMouseLeave={() => {
-                    setActiveMenu(null);
-                    setActiveCategory(null);
-                  }}
-                >
-                  <button className="nav-link">
-                    Category
-                    <FiChevronDown className="dropdown-icon" />
-                  </button>
-
-                  {/* Category Dropdown with Right-side Subcategories */}
-                  <div className="category-dropdown">
-                    <ul className="category-list">
-                      {categories.map((category) => (
-                        <li 
-                          key={category.id}
-                          className={`category-item ${activeCategory === category.id ? 'active' : ''}`}
-                          onMouseEnter={() => setActiveCategory(category.id)}
-                          onMouseLeave={() => setActiveCategory(null)}
-                        >
-                          <div className="category-link-wrapper">
-                            <Link to={`/shop/${category.slug}`} className="category-link">
-                              {category.name}
-                            </Link>
-                            <FiChevronDown className="category-arrow" />
-                          </div>
-
-                          {/* Right-side Subcategory Dropdown */}
-                          {activeCategory === category.id && (
-                            <div className="subcategory-dropdown-right">
-                              <ul className="subcategory-list-right">
-                                {category.subcategories.map((sub, index) => (
-                                  <li key={index}>
-                                    <Link to={`/shop/${category.slug}/${sub.toLowerCase().replace(/\s+/g, '-')}`}>
-                                      {sub}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                      
-                      {/* View All Button */}
-                      <li className="category-item view-all-item">
-                        <Link to="/shop" className="view-all-btn">
-                          View All Categories
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-
-                <li className="nav-item">
-                  <button 
-                    className="nav-link" 
-                    onClick={() => {
-                      const productsSection = document.getElementById('products-section');
-                      if (productsSection) {
-                        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }}
-                  >
-                    Products
-                  </button>
-                </li>
-
-                <li className="nav-item">
-                  <Link to="/about" className="nav-link">About</Link>
-                </li>
-
-                <li className="nav-item">
-                  <Link to="/contact" className="nav-link">Contact</Link>
-                </li>
-              </ul>
-            </nav>
-
-            {/* Header Actions */}
-            <div className="header-actions">
-              <button 
-                className="header-action-btn search-btn" 
-                onClick={() => setSearchOpen(true)}
-                aria-label="Search"
-              >
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="header-search">
+            <div className="search-wrapper">
+              <button type="submit" className="search-icon-btn">
                 <FiSearch />
               </button>
-              
-              {/* My Account Dropdown */}
-              <div 
-                className={`account-dropdown-wrapper ${activeMenu === 'account' ? 'active' : ''}`}
-                onMouseEnter={() => setActiveMenu('account')}
-                onMouseLeave={() => setActiveMenu(null)}
-              >
-                <button className="header-action-btn" aria-label="Account">
-                  <FiUser />
-                </button>
-
-                <div className="account-dropdown">
-                  <h4 className="account-dropdown-title">MY ACCOUNT</h4>
-                  {currentUser ? (
-                    <>
-                      <Link to="/account" className="account-dropdown-link">
-                        My Profile
-                      </Link>
-                      {isAdmin && (
-                        <Link to="/admin/dashboard" className="account-dropdown-link admin-link">
-                          Admin Dashboard
-                        </Link>
-                      )}
-                      <Link to="/account/orders" className="account-dropdown-link">
-                        My Orders
-                      </Link>
-                      <Link to="/account/wishlist" className="account-dropdown-link">
-                        Wishlist
-                      </Link>
-                      <button onClick={handleLogout} className="account-dropdown-link logout-btn">
-                        Logout
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link to="/signup" className="account-dropdown-link">
-                        Register
-                      </Link>
-                      <Link to="/login" className="account-dropdown-link">
-                        Login
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-              
-              <Link to="/account/wishlist" className="header-action-btn wishlist-btn" aria-label="Wishlist">
-                <FiHeart />
-              </Link>
-              
-              <Link to="/cart" className="header-action-btn cart-btn">
-                <FiShoppingCart />
-                <span className="cart-badge">0</span>
-              </Link>
+              <input
+                type="text"
+                placeholder="Search for Products, Brands and More"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
             </div>
+          </form>
+
+          {/* Header Actions */}
+          <div className="header-actions">
+            {/* Login Button */}
+            <div 
+              className="action-item login-item"
+              onMouseEnter={() => setActiveMenu('login')}
+              onMouseLeave={() => setActiveMenu(null)}
+            >
+              {currentUser ? (
+                <button className="login-btn logged-in">
+                  <FiUser />
+                  <span>{currentUser.displayName || 'My Account'}</span>
+                  <FiChevronDown className={`chevron ${activeMenu === 'login' ? 'rotate' : ''}`} />
+                </button>
+              ) : (
+                <Link to="/login" className="login-btn">
+                  Login
+                </Link>
+              )}
+
+              {/* Login Dropdown */}
+              <div className={`action-dropdown ${activeMenu === 'login' ? 'show' : ''}`}>
+                {currentUser ? (
+                  <>
+                    <Link to="/account/profile" className="dropdown-item">
+                      My Profile
+                    </Link>
+                    <Link to="/account/orders" className="dropdown-item">
+                      My Orders
+                    </Link>
+                    <Link to="/account/wishlist" className="dropdown-item">
+                      My Wishlist
+                    </Link>
+                    <button onClick={handleLogout} className="dropdown-item logout">
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="dropdown-header">
+                      <span>New customer?</span>
+                      <Link to="/signup">Sign Up</Link>
+                    </div>
+                    <Link to="/login" className="dropdown-item">
+                      <FiUser /> My Profile
+                    </Link>
+                    <Link to="/account/orders" className="dropdown-item">
+                      <FiPackage /> Orders
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Wishlist */}
+            <Link to="/account/wishlist" className="action-item wishlist-item">
+              <FiHeart />
+            </Link>
+
+            {/* Cart */}
+            <Link to="/cart" className="action-item cart-item">
+              <FiShoppingCart />
+              <span className="cart-count">{cartCount}</span>
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Search Popup */}
-      {searchOpen && (
-        <div className="search-popup-overlay" onClick={() => setSearchOpen(false)}>
-          <div className="search-popup" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="search-close" 
-              onClick={() => setSearchOpen(false)}
-              aria-label="Close search"
-            >
-              <FiX />
-            </button>
-            <form onSubmit={handleSearch} className="search-popup-form">
-              <input
-                type="text"
-                placeholder="Search our store"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-popup-input"
-                autoFocus
-              />
-              <button type="submit" className="search-popup-button">
-                Search
-              </button>
-            </form>
+      {/* Secondary Navigation (Categories) */}
+      <div className="header-categories">
+        <div className="container">
+          <div className="category-nav">
+            {navItems.map((item, index) => (
+              <div key={index} className="category-nav-item-wrapper">
+                <Link to={item.path} className="category-nav-item text-only">
+                  <span className="category-name">
+                    {item.name}
+                    {item.subcategories && <FiChevronDown className="cat-chevron" />}
+                  </span>
+                </Link>
+                {item.subcategories && (
+                  <div className="category-dropdown">
+                    {item.subcategories.map((sub, subIndex) => (
+                      <Link 
+                        key={subIndex} 
+                        to={`${item.path}&subcategory=${encodeURIComponent(sub)}`}
+                        className="category-dropdown-item"
+                      >
+                        {sub}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
+      {/* Mobile Sidebar */}
+      <div className={`mobile-sidebar-overlay ${mobileMenuOpen ? 'open' : ''}`} onClick={() => setMobileMenuOpen(false)} />
+      <div className={`mobile-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-sidebar-header">
+          <h3>Menu</h3>
+          <button className="close-sidebar-btn" onClick={() => setMobileMenuOpen(false)}>
+            <FiX />
+          </button>
+        </div>
+        
+        <div className="mobile-sidebar-content">
+          {/* Auth Section in Sidebar */}
+          <div className="mobile-auth-section">
+            {currentUser ? (
+              <div className="mobile-user-info">
+                <div className="user-greeting">
+                  <FiUser />
+                  <span>Hello, {currentUser.displayName || 'User'}</span>
+                </div>
+                <div className="mobile-user-links">
+                  <Link to="/account/profile" onClick={() => setMobileMenuOpen(false)}>My Profile</Link>
+                  <Link to="/account/orders" onClick={() => setMobileMenuOpen(false)}>My Orders</Link>
+                  <Link to="/account/wishlist" onClick={() => setMobileMenuOpen(false)}>My Wishlist</Link>
+                  {isAdmin && (
+                    <Link to="/admin/dashboard" onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</Link>
+                  )}
+                  <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="mobile-logout-btn">
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mobile-auth-buttons">
+                <Link to="/login" className="mobile-auth-btn login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+                <Link to="/signup" className="mobile-auth-btn signup" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
+              </div>
+            )}
+          </div>
 
-      {/* Backdrop Blur */}
-      {activeMenu === 'shop' && <div className="backdrop-blur" />}
+          <div className="mobile-nav-divider"></div>
+
+          {/* Categories in Sidebar */}
+          <div className="mobile-categories">
+            <h4>Products</h4>
+            {navItems.map((item, index) => (
+              <div key={index} className="mobile-category-item">
+                <div className="mobile-category-header">
+                  <Link 
+                    to={item.path} 
+                    className="mobile-category-link"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                  {item.subcategories && (
+                    <button 
+                      className={`mobile-cat-toggle ${expandedCategories[index] ? 'expanded' : ''}`}
+                      onClick={() => toggleCategory(index)}
+                    >
+                      <FiChevronDown />
+                    </button>
+                  )}
+                </div>
+                {item.subcategories && (
+                  <div className={`mobile-subcategories ${expandedCategories[index] ? 'open' : ''}`}>
+                    {item.subcategories.map((sub, subIndex) => (
+                      <Link 
+                        key={subIndex}
+                        to={`${item.path}&subcategory=${encodeURIComponent(sub)}`}
+                        className="mobile-subcategory-link"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {sub}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </header>
   );
 };

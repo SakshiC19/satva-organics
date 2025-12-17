@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FiGrid, FiBox, FiList, FiUsers, FiLogOut, FiHome } from 'react-icons/fi';
+import { FiGrid, FiBox, FiList, FiUsers, FiLogOut, FiHome, FiPackage, FiImage } from 'react-icons/fi';
 import './Admin.css';
 
 const AdminLayout = () => {
@@ -20,6 +20,8 @@ const AdminLayout = () => {
   const menuItems = [
     { path: '/admin/dashboard', icon: <FiGrid />, label: 'Dashboard' },
     { path: '/admin/products', icon: <FiBox />, label: 'Products' },
+    { path: '/admin/orders', icon: <FiPackage />, label: 'Orders' },
+    { path: '/admin/banners', icon: <FiImage />, label: 'Hero Banners' },
     { path: '/admin/categories', icon: <FiList />, label: 'Categories' },
     { path: '/admin/users', icon: <FiUsers />, label: 'Users' },
   ];

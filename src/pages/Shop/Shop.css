@@ -50,19 +50,31 @@
     color: var(--text-secondary);
 }
 
-/* Enhanced Toolbar */
-.shop-toolbar-enhanced {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-4);
-    background: white;
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-lg);
-    flex-wrap: wrap;
-    gap: var(--spacing-4);
+/* Shop Header Mobile */
+.shop-header-mobile {
+    display: none;
 }
 
+.mobile-filter-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.mobile-filters-header,
+.mobile-filters-footer,
+.mobile-filter-overlay {
+    display: none;
+}
+
+/* Toolbar Filters (Now in Breadcrumbs) */
 .toolbar-filters {
     display: flex;
     gap: var(--spacing-4);
@@ -144,10 +156,12 @@
     color: var(--color-primary-600);
 }
 
-.toolbar-actions {
+/* Shop Results Header (Count & View Modes) */
+.shop-results-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: var(--spacing-6);
+    margin-bottom: var(--spacing-4);
 }
 
 .results-count {
@@ -192,6 +206,11 @@
     grid-template-columns: 1fr;
 }
 
+.products-grid.compact-view {
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-4);
+}
+
 /* Pagination */
 .pagination {
     display: flex;
@@ -227,34 +246,142 @@
     .products-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+
+    .products-grid.compact-view {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
-    .shop-toolbar-enhanced {
-        flex-direction: column;
-        align-items: stretch;
+    .shop-header-mobile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-4);
+        gap: var(--spacing-4);
     }
 
-    .toolbar-filters {
+    .shop-header-mobile .breadcrumbs {
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    .mobile-filter-btn {
+        display: flex;
+        width: auto;
+        white-space: nowrap;
+        background: white;
+        padding: 8px 16px;
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--radius-md);
+    }
+
+    /* Mobile Sidebar Filters */
+    .mobile-sidebar-filters {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        z-index: 3000;
         flex-direction: column;
+        padding: 0;
+        transition: left 0.3s ease;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        flex-wrap: nowrap;
+    }
+
+    .mobile-sidebar-filters.mobile-open {
+        left: 0;
+    }
+
+    .mobile-filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-filters-header h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .mobile-filters-header button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .mobile-filters-footer {
+        display: block;
+        padding: 16px;
+        border-top: 1px solid #eee;
+        margin-top: auto;
+    }
+
+    .mobile-filters-footer .apply-btn {
+        width: 100%;
+    }
+
+    .mobile-filter-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2999;
+    }
+
+    /* Hide desktop filters in breadcrumbs on mobile if needed, 
+       but for now we keep them or let them wrap. 
+       If we want to hide them: */
+    .breadcrumbs-actions .toolbar-filters {
+        display: none;
+    }
+
+    .filter-dropdown-container {
+        width: 100%;
+        border-bottom: 1px solid #f0f0f0;
     }
 
     .filter-dropdown-btn {
+        width: 100%;
         justify-content: space-between;
+        border: none;
+        padding: 16px;
+        border-radius: 0;
     }
 
     .filter-dropdown-menu {
-        position: relative;
-        width: 100%;
+        position: static;
         box-shadow: none;
-        border: 1px solid var(--color-gray-200);
+        border: none;
+        padding: 0 16px 16px 16px;
+        width: 100%;
+        margin: 0;
+        display: block;
     }
 
-    .toolbar-actions {
-        justify-content: space-between;
+    .view-mode-btn {
+        pointer-events: auto;
+        position: relative;
+        z-index: 1;
     }
 
     .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-4);
+    }
+
+    .products-grid.compact-view {
         grid-template-columns: repeat(2, 1fr);
     }
 }
@@ -262,5 +389,10 @@
 @media (max-width: 480px) {
     .products-grid {
         grid-template-columns: 1fr;
+    }
+
+    .products-grid.compact-view {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-2);
     }
 }
