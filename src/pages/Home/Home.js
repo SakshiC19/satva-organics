@@ -54,7 +54,7 @@ const Home = () => {
 
   const { categories: contextCategories } = useCategories();
 
-  // Category icons mapping
+  // Category icons mappings
   const categoryIcons = {
     default: <FiPackage />
   };
@@ -97,7 +97,7 @@ const Home = () => {
       <section className="hero-compact">
         <div className="hero-content">
           <div className="hero-text">
-            <h1 className="hero-title">Fresh & Organic</h1>
+            <h1 className="hero-title">Fresh & Organic.</h1>
             <p className="hero-subtitle">Premium quality products delivered to your doorstep</p>
           </div>
           
