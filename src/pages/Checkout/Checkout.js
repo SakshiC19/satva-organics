@@ -277,20 +277,26 @@ const Checkout = () => {
             <StepHeader step={3} title="Order Summary" info={`${cartItems.length} Items`} />
             {activeStep === 3 && (
               <div className="step-body">
-                {cartItems.map(item => (
-                  <div key={item.id} style={{display: 'flex', gap: '16px', marginBottom: '16px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px'}}>
-                    <img src={item.image} alt={item.name} style={{width: '80px', height: '80px', objectFit: 'contain'}} />
-                    <div>
-                      <h4 style={{margin: '0 0 8px 0'}}>{item.name}</h4>
-                      <div style={{fontSize: '14px', color: '#878787'}}>
-                        Quantity: {item.quantity}
-                      </div>
-                      <div style={{marginTop: '8px', fontWeight: '600'}}>
-                        ₹{item.price * item.quantity}
+                {cartItems.map(item => {
+                  const itemImage = item.images && item.images.length > 0 
+                    ? (item.images[0].url || item.images[0]) 
+                    : item.image;
+
+                  return (
+                    <div key={`${item.id}-${item.selectedSize || 'default'}`} style={{display: 'flex', gap: '16px', marginBottom: '16px', borderBottom: '1px solid #f0f0f0', paddingBottom: '16px'}}>
+                      <img src={itemImage} alt={item.name} style={{width: '80px', height: '80px', objectFit: 'contain'}} />
+                      <div>
+                        <h4 style={{margin: '0 0 8px 0'}}>{item.name}</h4>
+                        <div style={{fontSize: '14px', color: '#878787'}}>
+                          Size: {item.selectedSize || 'Standard'} | Quantity: {item.quantity}
+                        </div>
+                        <div style={{marginTop: '8px', fontWeight: '600'}}>
+                          ₹{item.price * item.quantity}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <button onClick={handleSummaryContinue} className="continue-btn" style={{width: '200px', marginLeft: 'auto', display: 'block'}}>
                   Continue
                 </button>

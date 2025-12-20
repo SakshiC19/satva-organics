@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   FiShoppingCart, 
@@ -13,17 +13,55 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 
 import { useCart } from '../../contexts/CartContext';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 import './Header.css';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo1.png';
 
 const Header = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const { currentUser, logout, isAdmin, userRole } = useAuth();
   const { cartCount, openCart } = useCart();
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsCollection = collection(db, 'products');
+        const productsSnapshot = await getDocs(productsCollection);
+        const productsList = productsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name,
+          price: doc.data().price,
+          image: doc.data().images?.[0]?.url || doc.data().image,
+          subcategory: doc.data().subcategory
+        }));
+        setProducts(productsList);
+      } catch (error) {
+        console.error('Error fetching products in header:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim().length > 0) {
+      const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5);
+      setFilteredProducts(filtered);
+      setShowSuggestions(true);
+    } else {
+      setFilteredProducts([]);
+      setShowSuggestions(false);
+    }
+  }, [searchQuery, products]);
 
   // Debug logging
   console.log('Header - currentUser:', currentUser?.email);
@@ -62,8 +100,8 @@ const Header = () => {
       name: 'Organic Exotic Products', 
       path: '/shop?category=organic-exotic-products',
       subcategories: [
-        'Broccoli', 'Cherry Tomato', 'Red Cabbage', 'Yello Zucchini', 'Lettuce Leaf', 
-        'Beshal', 'Jalapena Green Chilli', 'Bok Choy', 'organic Spinch', 'organic Roman', 'Rocket'
+        'Broccoli', 'Cherry Tomato', 'Red Cabbage', 'Yellow Zucchini', 'Lettuce Leaf', 
+        'Beshal', 'Jalapena Green Chilli', 'Bok Choy', 'Organic Spinach', 'Organic Roman', 'Rocket'
       ]
     },
     { 
@@ -79,7 +117,7 @@ const Header = () => {
     { 
       name: 'Organic Items', 
       path: '/shop?category=organic-items',
-      subcategories: ['Fresh Turmeric', 'organic Jaggary', 'Organic Jaggary cubes']
+      subcategories: ['Fresh Turmeric', 'Organic Jaggary', 'Organic Jaggary cubes']
     },
     { 
       name: 'Seeds And Nuts', 
@@ -89,7 +127,7 @@ const Header = () => {
     { 
       name: 'Organic Powder', 
       path: '/shop?category=organic-powder',
-      subcategories: ['Moringa Leaf Powder', 'Neem Powder', 'Amla Powder', 'Shatavari Powder', 'Triphala Powder', 'Turmeric Latte Mix', 'organic Jaggary powder']
+      subcategories: ['Moringa Leaf Powder', 'Neem Powder', 'Amla Powder', 'Shatavari Powder', 'Triphala Powder', 'Turmeric Latte Mix', 'Organic Jaggary powder']
     },
   ];
 
@@ -122,8 +160,53 @@ const Header = () => {
                 placeholder="Search for Products, Brands and More"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery && setShowSuggestions(true)}
                 className="search-input"
               />
+              
+              {showSuggestions && (searchQuery.length > 0) && (
+                <div className="search-suggestions-dropdown">
+                  <div className="suggestions-section">
+                    <div className="suggestions-left">
+                      <h4>Suggestions</h4>
+                      <ul className="suggestions-list">
+                        {filteredProducts.map(p => (
+                          <li key={p.id} onClick={() => {
+                            setSearchQuery(p.name);
+                            setShowSuggestions(false);
+                            navigate(`/product/${p.id}`);
+                          }}>
+                            {p.name}
+                          </li>
+                        ))}
+                        {filteredProducts.length === 0 && <li>No suggestions found</li>}
+                      </ul>
+                    </div>
+                    <div className="suggestions-right">
+                      <h4>Products</h4>
+                      <div className="suggested-products">
+                        {filteredProducts.map(p => (
+                          <div key={p.id} className="suggested-product-item" onClick={() => {
+                            setShowSuggestions(false);
+                            navigate(`/product/${p.id}`);
+                          }}>
+                            <img src={p.image} alt={p.name} />
+                            <div className="suggested-product-info">
+                              <span className="name">{p.name}</span>
+                              <span className="price">₹{p.price}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="suggestions-footer">
+                    <Link to={`/shop?search=${searchQuery}`} onClick={() => setShowSuggestions(false)}>
+                      View all results
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </form>
 
@@ -222,15 +305,26 @@ const Header = () => {
                 </Link>
                 {item.subcategories && (
                   <div className="category-dropdown">
-                    {item.subcategories.map((sub, subIndex) => (
-                      <Link 
-                        key={subIndex} 
-                        to={`${item.path}&subcategory=${encodeURIComponent(sub)}`}
-                        className="category-dropdown-item"
-                      >
-                        {sub}
-                      </Link>
-                    ))}
+                    {item.subcategories.map((sub, subIndex) => {
+                      // Find if there's a product with this name
+                      const matchingProduct = products.find(p => 
+                        p.name.toLowerCase() === sub.toLowerCase()
+                      );
+                      
+                      const linkTo = matchingProduct 
+                        ? `/product/${matchingProduct.id}`
+                        : `${item.path}&subcategory=${encodeURIComponent(sub)}`;
+
+                      return (
+                        <Link 
+                          key={subIndex} 
+                          to={linkTo}
+                          className="category-dropdown-item"
+                        >
+                          {sub}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -276,6 +370,17 @@ const Header = () => {
 
           <div className="mobile-nav-divider"></div>
 
+          {/* Home Link */}
+          <Link 
+            to="/" 
+            className="mobile-home-link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+
+          <div className="mobile-nav-divider"></div>
+
           {/* Categories in Sidebar */}
           <div className="mobile-categories">
             <h4>Products</h4>
@@ -300,16 +405,26 @@ const Header = () => {
                 </div>
                 {item.subcategories && (
                   <div className={`mobile-subcategories ${expandedCategories[index] ? 'open' : ''}`}>
-                    {item.subcategories.map((sub, subIndex) => (
-                      <Link 
-                        key={subIndex}
-                        to={`${item.path}&subcategory=${encodeURIComponent(sub)}`}
-                        className="mobile-subcategory-link"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {sub}
-                      </Link>
-                    ))}
+                    {item.subcategories.map((sub, subIndex) => {
+                      const matchingProduct = products.find(p => 
+                        p.name.toLowerCase() === sub.toLowerCase()
+                      );
+                      
+                      const linkTo = matchingProduct 
+                        ? `/product/${matchingProduct.id}`
+                        : `${item.path}&subcategory=${encodeURIComponent(sub)}`;
+
+                      return (
+                        <Link 
+                          key={subIndex}
+                          to={linkTo}
+                          className="mobile-subcategory-link"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {sub}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </div>

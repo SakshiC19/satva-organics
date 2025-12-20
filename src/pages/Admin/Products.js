@@ -87,7 +87,7 @@ const Products = () => {
     <div className="admin-products">
       <div className="admin-page-header">
         <h1 className="admin-page-title">Products</h1>
-        <Link to="/admin/products/add" className="btn btn-primary">
+        <Link to="/admin/products/add" className="add-product-link">
           <FiPlus /> Add Product
         </Link>
       </div>

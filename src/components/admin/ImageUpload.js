@@ -3,7 +3,7 @@ import { FiUpload, FiX, FiImage } from 'react-icons/fi';
 import './ImageUpload.css';
 
 const ImageUpload = ({ 
-  onImagesSelected, 
+  onImagesSelected = () => {}, 
   maxImages = 5, 
   existingImages = [],
   label = "Product Images"

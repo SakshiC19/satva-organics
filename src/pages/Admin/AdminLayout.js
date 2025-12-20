@@ -1,11 +1,14 @@
 import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FiGrid, FiBox, FiList, FiUsers, FiLogOut, FiHome, FiPackage, FiImage } from 'react-icons/fi';
+import { 
+  FiGrid, FiBox, FiPackage, FiImage, FiList, 
+  FiUsers, FiHome, FiLogOut, FiSearch, FiBell 
+} from 'react-icons/fi';
 import './Admin.css';
 
 const AdminLayout = () => {
-  const { logout } = useAuth();
+  const { logout, currentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -22,6 +25,7 @@ const AdminLayout = () => {
     { path: '/admin/products', icon: <FiBox />, label: 'Products' },
     { path: '/admin/orders', icon: <FiPackage />, label: 'Orders' },
     { path: '/admin/banners', icon: <FiImage />, label: 'Hero Banners' },
+    { path: '/admin/promo-banners', icon: <FiImage />, label: 'Promo Banners' },
     { path: '/admin/categories', icon: <FiList />, label: 'Categories' },
     { path: '/admin/users', icon: <FiUsers />, label: 'Users' },
   ];
@@ -48,10 +52,10 @@ const AdminLayout = () => {
           
           <div className="admin-nav-divider"></div>
           
-          <NavLink to="/" className="admin-nav-item">
+          <Link to="/" className="admin-nav-item">
             <FiHome />
             <span>View Website</span>
-          </NavLink>
+          </Link>
           
           <button onClick={handleLogout} className="admin-nav-item logout-btn">
             <FiLogOut />
@@ -60,10 +64,40 @@ const AdminLayout = () => {
         </nav>
       </aside>
 
-      {/* Main Content */}
-      <main className="admin-main">
-        <Outlet />
-      </main>
+      {/* Main Content Area */}
+      <div className="admin-main">
+        {/* Top Bar */}
+        <header className="admin-topbar">
+          <div className="topbar-search">
+            <FiSearch />
+            <input type="text" placeholder="Search users, orders, products..." />
+          </div>
+
+          <div className="topbar-actions">
+            <button className="notification-btn">
+              <FiBell />
+              <span className="notification-badge"></span>
+            </button>
+
+            <div className="admin-profile-pill">
+              <img 
+                src={currentUser?.photoURL || "https://ui-avatars.com/api/?name=Admin+User&background=059669&color=fff"} 
+                alt="Profile" 
+                className="admin-avatar"
+              />
+              <div className="admin-profile-info">
+                <span className="admin-profile-name">{currentUser?.displayName || 'Admin User'}</span>
+                <span className="admin-profile-email">{currentUser?.email || 'admin@satva.com'}</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="admin-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };

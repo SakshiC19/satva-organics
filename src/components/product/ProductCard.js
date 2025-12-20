@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
 import { FiHeart, FiShoppingCart, FiShoppingBag } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
+import ProductSelectionModal from './ProductSelectionModal';
 
 const ProductCard = ({ 
-  product 
+  product,
+  compact = false
 }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
   
   const { 
     id,
@@ -41,7 +44,7 @@ const ProductCard = ({
   };
 
   return (
-    <div className="product-card" onClick={handleProductClick}>
+    <div className={`product-card ${compact ? 'product-card-compact' : ''}`} onClick={handleProductClick}>
       {/* Product Image */}
       <div className="product-card-image">
         <div className="wishlist-icon-container">
@@ -95,7 +98,7 @@ const ProductCard = ({
             className="card-btn add-cart-btn"
             onClick={(e) => {
               e.stopPropagation();
-              addToCart(product);
+              setIsModalOpen(true);
             }}
           >
             Add to Cart
@@ -112,6 +115,12 @@ const ProductCard = ({
           </button>
         </div>
       </div>
+
+      <ProductSelectionModal 
+        product={product}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

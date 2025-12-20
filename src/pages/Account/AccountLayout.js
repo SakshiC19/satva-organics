@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { FiUser, FiPackage, FiHeart, FiMapPin, FiLogOut } from 'react-icons/fi';
+import Breadcrumbs from '../../components/common/Breadcrumbs';
 import './Account.css';
 
 const AccountLayout = () => {
@@ -25,8 +26,10 @@ const AccountLayout = () => {
   ];
 
   return (
-    <div className="account-page">
-      <div className="container">
+    <>
+      <Breadcrumbs />
+      <div className="account-page">
+        <div className="container">
         <div className="account-layout">
           {/* Sidebar */}
           <aside className="account-sidebar">
@@ -52,9 +55,10 @@ const AccountLayout = () => {
           <main className="account-content">
             <Outlet />
           </main>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

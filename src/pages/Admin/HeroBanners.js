@@ -14,6 +14,7 @@ const HeroBanners = () => {
     alt: '',
     link: ''
   });
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     fetchBanners();
@@ -36,27 +37,45 @@ const HeroBanners = () => {
     }
   };
 
-  const handleImageUpload = (url) => {
-    setNewBanner(prev => ({ ...prev, image: url }));
+  const handleImagesSelected = (files) => {
+    if (files.length > 0) {
+      setSelectedImage(files[0]);
+    } else {
+      setSelectedImage(null);
+    }
   };
 
   const handleAddBanner = async (e) => {
     e.preventDefault();
-    if (!newBanner.image) return;
+    if (!selectedImage) {
+      alert('Please select an image first');
+      return;
+    }
 
     try {
       setUploading(true);
+
+      // Import uploadImage from storageService
+      const { uploadImage } = await import('../../services/storageService');
+      
+      // Upload image
+      const uploadResult = await uploadImage(selectedImage, 'banners');
+      
       await addDoc(collection(db, 'heroBanners'), {
         ...newBanner,
+        image: uploadResult.url,
+        imagePath: uploadResult.path,
         createdAt: new Date().toISOString(),
-        type: 'image' // Default type
+        type: 'image'
       });
       
       setNewBanner({ image: '', alt: '', link: '' });
+      setSelectedImage(null);
       fetchBanners();
+      alert('Banner added successfully!');
     } catch (error) {
       console.error('Error adding banner:', error);
-      alert('Failed to add banner');
+      alert('Failed to add banner: ' + error.message);
     } finally {
       setUploading(false);
     }
@@ -88,8 +107,9 @@ const HeroBanners = () => {
             <div className="form-group">
               <label>Banner Image</label>
               <ImageUpload 
-                onUpload={handleImageUpload}
-                currentImage={newBanner.image}
+                onImagesSelected={handleImagesSelected}
+                maxImages={1}
+                label="Select Banner Image"
               />
             </div>
             
@@ -119,7 +139,7 @@ const HeroBanners = () => {
             <button 
               type="submit" 
               className="btn btn-primary"
-              disabled={uploading || !newBanner.image}
+              disabled={uploading || !selectedImage}
             >
               {uploading ? 'Adding...' : 'Add Banner'}
             </button>

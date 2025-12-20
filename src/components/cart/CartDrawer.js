@@ -66,35 +66,42 @@ const CartDrawer = () => {
 
               {/* Cart Items */}
               <div className="cart-items-list">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="cart-item">
-                    <div className="item-image">
-                      <img src={item.image} alt={item.name} />
-                    </div>
-                    <div className="item-details">
-                      <h4>{item.name}</h4>
-                      <p className="item-unit">{item.weight || '500 g'}</p>
-                      <div className="item-price-row">
-                        <span className="item-price">₹{item.price}</span>
-                        <div className="item-quantity-controls">
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="qty-control-btn"
-                          >
-                            <FiMinus />
-                          </button>
-                          <span>{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="qty-control-btn"
-                          >
-                            <FiPlus />
-                          </button>
+                {cartItems.map((item) => {
+                  // Handle both Firebase format (images array) and legacy format (single image string)
+                  const itemImage = item.images && item.images.length > 0 
+                    ? (item.images[0].url || item.images[0]) 
+                    : item.image;
+
+                    return (
+                      <div key={`${item.id}-${item.selectedSize || 'default'}`} className="cart-item">
+                      <div className="item-image">
+                        <img src={itemImage} alt={item.name} />
+                      </div>
+                      <div className="item-details">
+                        <h4>{item.name}</h4>
+                        <p className="item-unit">{item.selectedSize || item.weight || item.unit || 'Standard'}</p>
+                        <div className="item-price-row">
+                          <span className="item-price">₹{item.price}</span>
+                          <div className="item-quantity-controls">
+                            <button 
+                              onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)}
+                              className="qty-control-btn"
+                            >
+                              <FiMinus />
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button 
+                              onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1)}
+                              className="qty-control-btn"
+                            >
+                              <FiPlus />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Bill Details */}

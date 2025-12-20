@@ -23,6 +23,7 @@ import AddProduct from './pages/Admin/AddProduct';
 import EditProduct from './pages/Admin/EditProduct';
 import AdminOrders from './pages/Admin/Orders';
 import HeroBanners from './pages/Admin/HeroBanners';
+import PromotionalBannersAdmin from './pages/Admin/PromotionalBanners';
 import Users from './pages/Admin/Users';
 import MakeAdmin from './components/admin/MakeAdmin';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
@@ -94,6 +95,7 @@ function App() {
                 <Route path="products/edit/:id" element={<EditProduct />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="banners" element={<HeroBanners />} />
+                <Route path="promo-banners" element={<PromotionalBannersAdmin />} />
                 <Route path="users" element={<Users />} />
               </Route>
 
